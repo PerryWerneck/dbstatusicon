@@ -26,7 +26,6 @@
 /* exported disable */
 
 const Gio = imports.gi.Gio;
-const GLib = imports.gi.GLib;
 
 /*
 const Lang = imports.lang;
@@ -140,27 +139,22 @@ class Controller {
 
 }
 
-let controller = new Controller()
-controller.init()
+Controller.instance = null;
 
-let loop = new GLib.MainLoop(null, false);
-loop.run();
-
-/*
 function init() {
 
-	global.log('Initializing status icon controller');
+	print('Initializing status icon controller');
 
 	if(Controller.instance === null) {
 		Controller.instance = new Controller();
-		controller.init()
+		Controller.instance.init()
 	}
 
 }
 
 function deinit() {
 
-	global.log('Deinitializing status icon controller');
+	print('Deinitializing status icon controller');
 
 	if(Controller.instance !== null) {
 		Controller.instance.deinit()
@@ -171,7 +165,7 @@ function deinit() {
 
 function enable() {
 
-	global.log('Enabling status icon controller');
+	print('Enabling status icon controller');
 
 	if(Controller.instance !== null) {
 		Controller.instance.enable()
@@ -188,4 +182,3 @@ function disable() {
 	}
 
 }
-*/
