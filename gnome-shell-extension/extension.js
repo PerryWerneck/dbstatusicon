@@ -25,9 +25,12 @@
 /* exported enable */
 /* exported disable */
 
+const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
+
+/*
 const Lang = imports.lang;
 const Main = imports.ui.main;
-const Gio = imports.gi.Gio;
 
 // https://github.com/GNOME/gnome-shell/blob/master/js/ui/panelMenu.js
 const PanelMenu = imports.ui.panelMenu;
@@ -51,10 +54,9 @@ class Indicator extends PanelMenu.Button {
 	}
 
 }
+*/
 
 // Main controller
-let controller = null
-
 class Controller {
 
 	constructor() {
@@ -66,29 +68,54 @@ class Controller {
 
 	init() {
 
-		// Load Interface description
-		let interface = Gio.file_new_for_path(Me.path + '/interface.xml').load_contents();
+		// let intf = Gio.file_new_for_path(Me.path + '/interface.xml').load_contents(null)];
 
 		this.service.id = 
-			Gio.DBus.user.own_name(
+			Gio.DBus.session.own_name(
 				'br.eti.werneck.statusicon',
 				Gio.BusNameOwnerFlags.NONE,
 				function() {
-					global.log('br.eti.werneck.statusicon');
+					print('Got br.eti.werneck.statusicon');
 				},
 				function() {
-					global.log('Error getting br.eti.werneck.statusicon');
+					print('Error getting br.eti.werneck.statusicon');
 				}
 			);
 
-		this.service.wrapper = Gio.DBusExportedObject.wrapJSObject(interface, this);
-		this.service.wrapper.export(Gio.DBus.user, '/controller');
+		const intf = 
+			'<node> \
+				<interface name="br.eti.werneck.statusicons"> \
+					<method name="add"> \
+						<arg type="s" direction="in" /> \
+						<arg type="b" direction="out" /> \
+					</method> \
+					<method name="remove"> \
+						<arg type="s" direction="in" /> \
+						<arg type="b" direction="out" /> \
+					</method> \
+					<method name="abend"> \
+					</method> \
+				</interface> \
+			</node>';
+
+		this.service.wrapper = Gio.DBusExportedObject.wrapJSObject(intf, this);
+		this.service.wrapper.export(Gio.DBus.session, '/controller');
 	
 	}
 
 	deinit() {
 
 
+	}
+
+	log(msg) {
+		global.log('[statusicons]', msg)
+		print(msg)
+	}
+
+	// Quick and dirty hack to use gnome shell extension reload
+	abend() {
+		throw new Error('Abend!');
 	}
 
 	enable() {
@@ -101,24 +128,31 @@ class Controller {
 
 	// Add status icon to bar
 	add(name) {
-		global.log("Adding status icon " + name)
+		this.log("Adding status icon " + name)
 		return false;
 	}
 
 	// Remove status icon from bar 
 	remove(name) {
-		global.log("Removing status icon " + name)
+		this.log("Removing status icon " + name)
 		return false;
 	}
 
 }
 
+let controller = new Controller()
+controller.init()
+
+let loop = new GLib.MainLoop(null, false);
+loop.run();
+
+/*
 function init() {
 
 	global.log('Initializing status icon controller');
 
-	if(controller === null) {
-		controller = new Controller();
+	if(Controller.instance === null) {
+		Controller.instance = new Controller();
 		controller.init()
 	}
 
@@ -128,9 +162,9 @@ function deinit() {
 
 	global.log('Deinitializing status icon controller');
 
-	if(controller !== null) {
-		controller.deinit()
-		controller = null;
+	if(Controller.instance !== null) {
+		Controller.instance.deinit()
+		Controller.instance = null;
 	}
 
 }
@@ -139,18 +173,19 @@ function enable() {
 
 	global.log('Enabling status icon controller');
 
-	if(controller !== null) {
-		controller.enable();
+	if(Controller.instance !== null) {
+		Controller.instance.enable()
 	}
 
 }
 
 function disable() {
 
-	global.log('Enabling status icon controller');
+	global.log('Disabling status icon controller');
 
 	if(controller !== null) {
-		controller.disable();
+		Constroller.instance.deinit()
 	}
 
 }
+*/
