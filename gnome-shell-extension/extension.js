@@ -25,17 +25,20 @@
 /* exported enable */
 /* exported disable */
 
-const Gio = imports.gi.Gio;
-
-/*
+const { Gio } = imports.gi;
 const Lang = imports.lang;
-const Main = imports.ui.main;
 
 // https://github.com/GNOME/gnome-shell/blob/master/js/ui/panelMenu.js
 const PanelMenu = imports.ui.panelMenu;
 
+/*
+const Main = imports.ui.main;
+
+const PanelMenu = imports.ui.panelMenu;
+
 // https://stackoverflow.com/questions/20394840/how-to-set-a-png-file-in-a-gnome-shell-extension-for-st-icon
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+*/
 
 // Indicator
 class Indicator extends PanelMenu.Button {
@@ -53,7 +56,6 @@ class Indicator extends PanelMenu.Button {
 	}
 
 }
-*/
 
 // Main controller
 class Controller {
@@ -67,6 +69,7 @@ class Controller {
 
 	init() {
 
+		this.log("Initializing status icon controller");
 		// let intf = Gio.file_new_for_path(Me.path + '/interface.xml').load_contents(null)];
 
 		this.service.id = 
@@ -86,6 +89,8 @@ class Controller {
 				<interface name="br.eti.werneck.statusicons"> \
 					<method name="add"> \
 						<arg type="s" direction="in" /> \
+						<arg type="s" direction="in" /> \
+						<arg type="b" direction="in" /> \
 						<arg type="b" direction="out" /> \
 					</method> \
 					<method name="remove"> \
@@ -104,6 +109,8 @@ class Controller {
 
 	deinit() {
 
+		this.log("Deinitializing status icon controller");
+
 
 	}
 
@@ -118,17 +125,46 @@ class Controller {
 	}
 
 	enable() {
-
+		this.log("Enabling status icon controller");
 	}
 
 	disable() {
-
+		this.log("Enabling status icon controller");
 	}
 
 	// Add status icon to bar
-	add(name) {
+	add(name, nameText, dontCreateMenu) {
+
+		if(this.icons.hasOwnProperty(name)) {
+			this.log("Icon " + name + " was already registered");
+			return true;
+		}
+
 		this.log("Adding status icon " + name)
-		return false;
+
+		try {
+
+			let icon = new Indicator(0.0, nameText, dontCreateMenu)
+
+			icon.connect('destroy', Lang.bind(this, function(icon) {
+
+				print(icon)
+	
+			}));
+
+			// Store for future use.
+			this.icons[name] = icon;
+
+		} catch(e) {
+
+			this.log("Can't add icon " + name + " - " + e.message);
+			print(e.stack);
+
+			return false;
+
+		}
+
+		return true;
 	}
 
 	// Remove status icon from bar 
@@ -139,11 +175,14 @@ class Controller {
 
 }
 
-Controller.instance = null;
+function get_controller() {
+
+	Controller.instance = new Controller();
+	return Controller.instance;
+
+}
 
 function init() {
-
-	print('Initializing status icon controller');
 
 	if(Controller.instance === null) {
 		Controller.instance = new Controller();
@@ -154,8 +193,6 @@ function init() {
 
 function deinit() {
 
-	print('Deinitializing status icon controller');
-
 	if(Controller.instance !== null) {
 		Controller.instance.deinit()
 		Controller.instance = null;
@@ -165,8 +202,6 @@ function deinit() {
 
 function enable() {
 
-	print('Enabling status icon controller');
-
 	if(Controller.instance !== null) {
 		Controller.instance.enable()
 	}
@@ -175,10 +210,8 @@ function enable() {
 
 function disable() {
 
-	global.log('Disabling status icon controller');
-
-	if(controller !== null) {
-		Constroller.instance.deinit()
+	if(Controller.instance !== null) {
+		Controller.instance.disable()
 	}
 
 }

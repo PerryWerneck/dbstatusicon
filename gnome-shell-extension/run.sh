@@ -1,4 +1,3 @@
 #!/bin/bash
-
-gjs --include-path=${PWD} testprogram.js
+dbus-run-session -- gnome-shell --nested --wayland
 
