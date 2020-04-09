@@ -26,14 +26,28 @@
 /* history */
 /* exported Button */
 
+// https://github.com/GNOME/gnome-shell/blob/master/js/ui/panelMenu.js
+
 imports.gi.versions.Gtk = "3.0";
 const { GObject, Gtk } = imports.gi;
+
+var buttonbox = null;
 
 var Button = GObject.registerClass({
     Signals: { 'menu-set': {}, 'destroy': {} },
 }, class PanelMenuButton extends GObject.Object {
 		_init(menuAlignment, nameText, dontCreateMenu) {
 			super._init()
+
+			this.actor = new Gtk.Button();
+		}
+
+		set_visible(visible) {
+
 		}
 	}
 );
+
+function set_button_box(box) {
+	buttonbox = box;
+}

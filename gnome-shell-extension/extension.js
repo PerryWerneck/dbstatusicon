@@ -97,6 +97,9 @@ class Controller {
 						<arg type="s" direction="in" /> \
 						<arg type="b" direction="out" /> \
 					</method> \
+					<method name="set_visible"> \
+						<arg type="b" direction="in" /> \
+					</method> \
 					<method name="abend"> \
 					</method> \
 				</interface> \
@@ -155,6 +158,8 @@ class Controller {
 			// Store for future use.
 			this.icons[name] = icon;
 
+			// Add it to the panel
+
 		} catch(e) {
 
 			this.log("Can't add icon " + name + " - " + e.message);
@@ -172,6 +177,29 @@ class Controller {
 		this.log("Removing status icon " + name)
 		return false;
 	}
+
+	get_indicator(name) {
+
+		if(!this.icons.hasOwnProperty(name)) {
+			throw new Error("Indicator " + name + " is not added");
+		}
+
+		return this.icons[name]
+	}
+
+	set_visible(name, visible) {
+		this.get_indicator(name).set_visible(visible);
+	}
+
+	set_icon_name(name, icon_name) {
+		this.get_indicator(name).set_icon_name(visible);
+	}
+
+	set_from_file(name, file) {
+		this.get_indicator(name).set_from_file(visible);
+	}
+
+
 
 }
 
