@@ -40,6 +40,7 @@ const PanelMenu = imports.ui.panelMenu;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 */
 
+/*
 // Indicator
 class Indicator extends PanelMenu.Button {
 
@@ -56,6 +57,7 @@ class Indicator extends PanelMenu.Button {
 	}
 
 }
+*/
 
 // Main controller
 class Controller {
@@ -138,38 +140,7 @@ class Controller {
 	// Add status icon to bar
 	add(name, nameText, dontCreateMenu) {
 
-		if(this.icons.hasOwnProperty(name)) {
-			this.log("Icon " + name + " was already registered");
-			return true;
-		}
-
-		this.log("Adding status icon " + name)
-
-		try {
-
-			let icon = new Indicator(0.0, nameText, dontCreateMenu)
-
-			icon.connect('destroy', Lang.bind(this, function(icon) {
-
-				print(icon)
-	
-			}));
-
-			// Store for future use.
-			this.icons[name] = icon;
-
-			// Add it to the panel
-
-		} catch(e) {
-
-			this.log("Can't add icon " + name + " - " + e.message);
-			print(e.stack);
-
-			return false;
-
-		}
-
-		return true;
+		return false;
 	}
 
 	// Remove status icon from bar 
@@ -192,11 +163,11 @@ class Controller {
 	}
 
 	set_icon_name(name, icon_name) {
-		this.get_indicator(name).set_icon_name(visible);
+		this.get_indicator(name).set_icon_name(icon_name);
 	}
 
 	set_from_file(name, file) {
-		this.get_indicator(name).set_from_file(visible);
+//		this.get_indicator(name).set_from_file(file);
 	}
 
 

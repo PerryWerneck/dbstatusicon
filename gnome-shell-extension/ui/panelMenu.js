@@ -28,10 +28,9 @@
 
 // https://github.com/GNOME/gnome-shell/blob/master/js/ui/panelMenu.js
 
+/*
 imports.gi.versions.Gtk = "3.0";
 const { GObject, Gtk } = imports.gi;
-
-var buttonbox = null;
 
 var Button = GObject.registerClass({
     Signals: { 'menu-set': {}, 'destroy': {} },
@@ -51,3 +50,4 @@ var Button = GObject.registerClass({
 function set_button_box(box) {
 	buttonbox = box;
 }
+*/

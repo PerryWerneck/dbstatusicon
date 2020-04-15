@@ -12,6 +12,46 @@ controller.log = function(msg) {
 	print(msg)
 }
 
+class indicator {
+
+	constructor() {
+		this.button = new Gtk.Button();
+	}	
+
+	set_icon_name(icon_name) {
+		let image = new Gtk.Image();
+		image.set_from_icon_name(icon_name,Gtk.IconSize.BUTTON);
+		this.button.set_image(image);
+	}
+
+	set_from_file(file) {
+
+	}
+
+	set_visible(visible) {
+		if(visible) {
+			this.button.show_all();
+		} else {
+			this.button_hide();
+		}
+	}
+
+}
+
+controller.add = function(name, nameText, dontCreateMenu) {
+
+	if(this.icons.hasOwnProperty(name)) {
+		print("Icon " + name + " was already registered");
+		return false;
+	}
+
+	this.icons[name] = new indicator();
+	this.button_box.pack_start(this.icons[name].button, false, false, 0);
+
+	return true;
+}
+
+
 //
 // Create a GTK Application
 //
@@ -33,18 +73,17 @@ application.connect('activate', app => {
 
 		activeWindow.set_title('Extension test');
 
-		let box = new Gtk.ButtonBox({
+		controller.button_box = new Gtk.ButtonBox({
             orientation: Gtk.Orientation.HORIZONTAL
 		});
 
-		box.pack_start(new Gtk.Button({ 'label': 'test'}), false, false, 0);
+//		controller.button_box.pack_start(new Gtk.Button({ 'label': 'test'}), false, false, 0);
 		
-		PanelMenu.set_button_box(box);
-
-		activeWindow.add(box);
+		activeWindow.add(controller.button_box);
 		activeWindow.show_all();
 
 		controller.add("test","Sample indicator",false);
+		controller.set_icon_name("test","network-offline");
 		controller.set_visible("test",true)
 		
 	}
