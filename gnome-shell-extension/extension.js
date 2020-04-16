@@ -102,6 +102,14 @@ class Controller {
 					<method name="set_visible"> \
 						<arg type="b" direction="in" /> \
 					</method> \
+					<method name="set_icon_name"> \
+						<arg type="s" direction="in" /> \
+						<arg type="s" direction="in" /> \
+					</method> \
+					<method name="set_from_file"> \
+						<arg type="s" direction="in" /> \
+						<arg type="s" direction="in" /> \
+					</method> \
 					<method name="abend"> \
 					</method> \
 				</interface> \
@@ -152,7 +160,7 @@ class Controller {
 	get_indicator(name) {
 
 		if(!this.icons.hasOwnProperty(name)) {
-			throw new Error("Indicator " + name + " is not added");
+			throw new Error(`Indicator ${name} is not available`);
 		}
 
 		return this.icons[name]
@@ -167,7 +175,7 @@ class Controller {
 	}
 
 	set_from_file(name, file) {
-//		this.get_indicator(name).set_from_file(file);
+		this.get_indicator(name).set_from_file(file);
 	}
 
 
