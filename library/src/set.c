@@ -48,7 +48,7 @@
     if(!icon)
         return;
 
-    if(icon_name && !strcmp(icon_name,icon->icon_name))
+    if(icon->icon_name && !strcmp(icon_name,icon->icon_name))
         return;
 
 

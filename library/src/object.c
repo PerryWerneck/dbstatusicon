@@ -44,6 +44,11 @@
         icon->icon_name = NULL;
     }
 
+    if(icon->title) {
+        g_free(icon->title);
+        icon->name = NULL;
+    }
+
  }
 
  static void DbStatusIcon_class_init(DbStatusIconClass *klass) {
@@ -86,8 +91,8 @@
     );
 
     klass->properties.icon_name = g_param_spec_string(
-                "icon_name",
-                "icon_name",
+                "icon-name",
+                "icon-name",
                 _("The name of the status icon"),
                 NULL,
                 G_PARAM_READWRITE|G_PARAM_STATIC_NAME
@@ -120,6 +125,7 @@
 
  }
 
+
  DbStatusIcon * db_status_icon_try_embed(GObject *object) {
 
     g_return_val_if_fail(IS_DB_STATUS_ICON(object),NULL);
@@ -130,9 +136,49 @@
         return icon;
 
     // Icon isn't registered, call service.
+    GError * error = NULL;
+    GVariant * response = NULL;
 
+    GDBusConnection * connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
 
-    return NULL;
+    if(!error) {
+
+		response =
+			g_dbus_connection_call_sync(
+				connection,
+				DBUS_STATUS_ICON_BUS_NAME,
+				DBUS_STATUS_ICON_CONTROLLER_PATH,
+				DBUS_STATUS_ICON_CONTROLLER_INTERFACE,
+				"add",
+				g_variant_new(
+					"(ssb)",
+						icon->name,
+						icon->title ? icon->title : "",
+						TRUE
+				),
+				NULL,
+				G_DBUS_CALL_FLAGS_NONE,
+				-1,
+				NULL,
+				&error
+			);
+
+    }
+
+	if(error) {
+		g_warning("%s",error->message);
+		g_error_free(error);
+		icon->embedded = FALSE;
+		return NULL;
+	}
+
+	if(response) {
+		// Get response.
+
+		g_variant_unref(response);
+	}
+
+    return icon;
 
  }
 

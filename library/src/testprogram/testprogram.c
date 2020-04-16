@@ -46,6 +46,8 @@ int main (int argc, char **argv) {
 
     GObject * icon = db_status_icon_new("test");
 
+    db_status_icon_set_from_icon_name(icon,"network-offline");
+
 	status = g_application_run (G_APPLICATION (app), argc, argv);
 	g_object_unref (app);
 

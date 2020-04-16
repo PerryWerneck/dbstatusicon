@@ -32,11 +32,11 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
-			<Add option="`pkg-config --cflags gtk+-3.0`" />
+			<Add option="`pkg-config --cflags gtk+-3.0 gio-2.0 dbus-glib-1`" />
 			<Add directory="src/include" />
 		</Compiler>
 		<Linker>
-			<Add option="`pkg-config --libs gtk+-3.0`" />
+			<Add option="`pkg-config --libs gtk+-3.0 gio-2.0 dbus-glib-1`" />
 		</Linker>
 		<Unit filename="src/get.c">
 			<Option compilerVar="CC" />

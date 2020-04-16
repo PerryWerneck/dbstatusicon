@@ -28,12 +28,19 @@
     #endif
 
     #include <libintl.h>
+    #include <gio/gio.h>
+    #include <glib.h>
     #include <glib/gi18n-lib.h>
 
     #include <dbstatusicon.h>
 
     // not really I18N-related, but also a string marker macro
     #define I_(string) g_intern_static_string(string)
+
+    #define DBUS_STATUS_ICON_BUS_NAME				"br.eti.werneck.statusicon"
+
+	#define DBUS_STATUS_ICON_CONTROLLER_PATH		"/controller"
+	#define DBUS_STATUS_ICON_CONTROLLER_INTERFACE	"br.eti.werneck.statusicons"
 
     enum _db_status_icon_property {
 
@@ -50,6 +57,7 @@
         gchar       * name;
         gboolean      embedded;
 
+        gchar		* title;
         gchar       * icon_name;
 
     };
