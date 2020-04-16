@@ -175,8 +175,12 @@
 	if(response) {
 		// Get response.
 
+		// TODO: Check response.
+
 		g_variant_unref(response);
 	}
+
+	icon->embedded = TRUE;
 
     return icon;
 
