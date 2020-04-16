@@ -40,7 +40,8 @@
         DB_STATUS_PROPERTY_NONE,
 
         DB_STATUS_ICON_PROPERTY_NAME,
-        DB_STATUS_ICON_PROPERTY_EMBEDDED
+        DB_STATUS_ICON_PROPERTY_EMBEDDED,
+        DB_STATUS_ICON_PROPERTY_ICON_NAME,
     };
 
     struct _DbStatusIcon {
@@ -49,16 +50,26 @@
         gchar       * name;
         gboolean      embedded;
 
+        gchar       * icon_name;
+
     };
 
    struct _DbStatusIconClass {
 
         GObjectClass parent_class;
 
+        struct {
+            GParamSpec * icon_name;
+        } properties;
+
     };
+
+    #define replace(ptr,value) g_free(ptr); ptr = g_strdup(value)
 
     G_GNUC_INTERNAL void db_status_icon_set_property(GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
     G_GNUC_INTERNAL void db_status_icon_get_property(GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
+
+    G_GNUC_INTERNAL DbStatusIcon * db_status_icon_try_embed(GObject *object);
 
 
 #endif // PRIVATE_H_INCLUDED

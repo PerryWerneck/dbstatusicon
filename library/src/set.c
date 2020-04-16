@@ -42,3 +42,18 @@
 
  }
 
+ void db_status_icon_set_from_icon_name(GObject *object, const gchar *icon_name) {
+
+    DbStatusIcon * icon = db_status_icon_try_embed(object);
+    if(!icon)
+        return;
+
+    if(icon_name && !strcmp(icon_name,icon->icon_name))
+        return;
+
+
+
+    replace(icon->icon_name,icon_name);
+    g_object_notify_by_pspec(G_OBJECT(icon), DB_STATUS_ICON_GET_CLASS(icon)->properties.icon_name);
+
+ }

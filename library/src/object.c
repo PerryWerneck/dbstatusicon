@@ -39,6 +39,11 @@
         icon->name = NULL;
     }
 
+    if(icon->icon_name) {
+        g_free(icon->icon_name);
+        icon->icon_name = NULL;
+    }
+
  }
 
  static void DbStatusIcon_class_init(DbStatusIconClass *klass) {
@@ -80,6 +85,20 @@
             spec
     );
 
+    klass->properties.icon_name = g_param_spec_string(
+                "icon_name",
+                "icon_name",
+                _("The name of the status icon"),
+                NULL,
+                G_PARAM_READWRITE|G_PARAM_STATIC_NAME
+            );
+
+    g_object_class_install_property(
+            gobject_class,
+            DB_STATUS_ICON_PROPERTY_ICON_NAME,
+            klass->properties.icon_name
+    );
+
 
  }
 
@@ -100,3 +119,20 @@
     return NULL;
 
  }
+
+ DbStatusIcon * db_status_icon_try_embed(GObject *object) {
+
+    g_return_val_if_fail(IS_DB_STATUS_ICON(object),NULL);
+
+    DbStatusIcon * icon = DB_STATUS_ICON(object);
+
+    if(icon->embedded)
+        return icon;
+
+    // Icon isn't registered, call service.
+
+
+    return NULL;
+
+ }
+

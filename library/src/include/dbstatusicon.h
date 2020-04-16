@@ -38,7 +38,9 @@
     typedef struct _DbStatusIconClass   DbStatusIconClass;
 
     GType             DbStatusIcon_get_type();
-    GObject         * db_status_icon_new(const gchar *name);
+    GObject        * db_status_icon_new(const gchar *name);
+
+    void             db_status_icon_set_from_icon_name(GObject *status_icon, const gchar *icon_name);
 
     G_END_DECLS
 
