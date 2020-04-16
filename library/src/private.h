@@ -36,6 +36,9 @@
     #define I_(string) g_intern_static_string(string)
 
     enum _db_status_icon_property {
+
+        DB_STATUS_PROPERTY_NONE,
+
         DB_STATUS_ICON_PROPERTY_NAME,
         DB_STATUS_ICON_PROPERTY_EMBEDDED
     };

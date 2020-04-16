@@ -21,4 +21,20 @@
 
  void db_status_icon_get_property(GObject *object, guint prop_id, GValue *value, GParamSpec *pspec) {
 
+    DbStatusIcon * icon = DB_STATUS_ICON(object);
+
+    switch(prop_id) {
+    case DB_STATUS_ICON_PROPERTY_NAME:
+        g_value_set_string(value,icon->name);
+        break;
+
+    case DB_STATUS_ICON_PROPERTY_EMBEDDED:
+        g_value_set_boolean(value,icon->embedded);
+        break;
+
+    default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+
+    }
+
  }

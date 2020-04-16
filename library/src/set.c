@@ -21,5 +21,24 @@
 
  void db_status_icon_set_property(GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec) {
 
+    DbStatusIcon * icon = DB_STATUS_ICON(object);
+
+    switch(prop_id) {
+    case DB_STATUS_ICON_PROPERTY_NAME:
+        if(icon->name) {
+            g_free(icon->name);
+        }
+        icon->name = g_strdup(g_value_get_string(value));
+        break;
+
+    case DB_STATUS_ICON_PROPERTY_EMBEDDED:
+        g_warning("Can't set embedded property");
+        break;
+
+    default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+
+    }
+
  }
 
