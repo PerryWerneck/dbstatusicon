@@ -21,6 +21,6 @@
 
     #define PRIVATE_H_INCLUDED
 
-    #include <gtk/gtk.h>
+    #include <dbstatusicon.h>
 
 #endif // PRIVATE_H_INCLUDED

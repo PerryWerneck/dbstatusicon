@@ -33,10 +33,22 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="`pkg-config --cflags gtk+-3.0`" />
+			<Add directory="src/include" />
 		</Compiler>
 		<Linker>
 			<Add option="`pkg-config --libs gtk+-3.0`" />
 		</Linker>
+		<Unit filename="src/get.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/include/dbstatusicon.h" />
+		<Unit filename="src/object.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/private.h" />
+		<Unit filename="src/set.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/testprogram/private.h" />
 		<Unit filename="src/testprogram/testprogram.c">
 			<Option compilerVar="CC" />

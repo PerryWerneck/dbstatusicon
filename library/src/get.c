@@ -19,38 +19,6 @@
 
  #include "private.h"
 
-static void activate(GtkApplication* app, G_GNUC_UNUSED gpointer user_data) {
+ void db_status_icon_get_property(GObject *object, guint prop_id, GValue *value, GParamSpec *pspec) {
 
-	GtkWidget * window = gtk_application_window_new(app);
-
-
-	gtk_widget_show_all(window);
-
-}
-
-int main (int argc, char **argv) {
-
-	GtkApplication *app;
-	int status;
-
-	// Setup locale
-#ifdef LC_ALL
-	setlocale( LC_ALL, "" );
-#endif
-
-//	textdomain("dbstatusicons");
-
-	app = gtk_application_new ("br.eti.werneck.statusicons.testprogram",G_APPLICATION_FLAGS_NONE);
-
-	g_signal_connect (app, "activate", G_CALLBACK(activate), NULL);
-
-	status = g_application_run (G_APPLICATION (app), argc, argv);
-	g_object_unref (app);
-
-	g_message("rc=%d",status);
-
-	return 0;
-
-}
-
-
+ }
