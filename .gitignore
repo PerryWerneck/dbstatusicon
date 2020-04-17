@@ -3,4 +3,11 @@
 .obj
 *.bak
 *.depend
+aclocal.m4
+autom4te.cache
+config.*
+configure
+config.h
+stamp-h1
+scripts
 
