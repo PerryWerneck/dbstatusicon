@@ -100,6 +100,7 @@ class Controller {
 						<arg type="b" direction="out" /> \
 					</method> \
 					<method name="set_visible"> \
+						<arg type="s" direction="in" /> \
 						<arg type="b" direction="in" /> \
 						<arg type="b" direction="out" /> \
 					</method> \

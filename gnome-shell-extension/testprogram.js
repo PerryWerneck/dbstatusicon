@@ -32,7 +32,7 @@ class indicator {
 		if(visible) {
 			this.button.show_all();
 		} else {
-			this.button_hide();
+			this.button.hide();
 		}
 	}
 

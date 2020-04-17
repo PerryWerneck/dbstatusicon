@@ -48,6 +48,7 @@
 
 		DB_STATUS_ICON_PROPERTY_NAME,
         DB_STATUS_ICON_PROPERTY_EMBEDDED,
+        DB_STATUS_ICON_PROPERTY_VISIBLE,
 
 		DB_STATUS_ICON_PROPERTY_STRINGS
     };
@@ -81,6 +82,7 @@
 
         struct {
             GParamSpec * icon_name;
+            GParamSpec * visible;
             GParamSpec * strings[DB_STATUS_ICON_STRINGS];
         } properties;
 

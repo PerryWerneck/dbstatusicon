@@ -83,6 +83,22 @@
             spec
 	);
 
+	klass->properties.visible
+	 = g_param_spec_boolean(
+            "visible",
+            "visible",
+            _("True if the icon is visible"),
+            FALSE,
+            G_PARAM_READWRITE
+    );
+
+	g_object_class_install_property(
+            gobject_class,
+            DB_STATUS_ICON_PROPERTY_VISIBLE,
+            klass->properties.visible
+	);
+
+
 	//
 	// Register string properties.
 	//

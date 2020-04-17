@@ -48,6 +48,10 @@
         g_warning("Can't set embedded property");
 		break;
 
+	case DB_STATUS_ICON_PROPERTY_VISIBLE:
+		db_status_icon_set_visible(object,g_value_get_boolean(value));
+		break;
+
 	case DB_STATUS_ICON_PROPERTY_ICON_NAME:
 		db_status_icon_set_from_icon_name(object, g_value_get_string(value));
 		break;
