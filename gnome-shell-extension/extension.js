@@ -25,11 +25,16 @@
 /* exported enable */
 /* exported disable */
 
-const { Gio } = imports.gi;
+const { Gio, St } = imports.gi;
 const Lang = imports.lang;
 
 // https://github.com/GNOME/gnome-shell/blob/master/js/ui/panelMenu.js
+// https://github.com/GNOME/gnome-shell/blob/master/js/ui/panel.js
 const PanelMenu = imports.ui.panelMenu;
+const Main = imports.ui.main;
+
+const Clutter = imports.gi.Clutter;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 
 /*
 const Main = imports.ui.main;
@@ -41,18 +46,40 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 */
 
 // Indicator
-/*
 class Indicator extends PanelMenu.Button {
 
-	constructor(name, nameText, dontCreateMenu) {
+	constructor(nameText, dontCreateMenu) {
+
 		super(0.0, nameText, dontCreateMenu);
+
+		this.icon = new St.Icon();
+		this.icon.set_icon_size(20);
+
+		this.box = new St.BoxLayout();
+		this.box.add_child(this.icon);
+
+		this.actor.add_child(this.box);
+		
 	}	
 
 	set_icon(icon) {
+		this.icon.set_gicon(icon);
 	}
 	
+	set_visible(visible) {
+
+		if(visible) {
+			this.box.show();
+		} else {
+			this.box.hide();
+		}
+
+	}
+
+	set_title(title) {
+	}
+
 }
-*/
 
 // Main controller
 class Controller {
@@ -120,7 +147,7 @@ class Controller {
 
 		this.service.wrapper = Gio.DBusExportedObject.wrapJSObject(intf, this);
 		this.service.wrapper.export(Gio.DBus.session, '/controller');
-	
+
 	}
 
 	deinit() {
@@ -137,15 +164,28 @@ class Controller {
 
 	enable() {
 		this.log("Enabling status icon controller");
+
 	}
 
 	disable() {
-		this.log("Enabling status icon controller");
+		this.log("Disabling status icon controller");
 	}
 
 	// Add status icon to bar
 	add(name, nameText, dontCreateMenu) {
-		return false;
+
+		if(this.icons.hasOwnProperty(name)) {
+			this.log("Icon " + name + " was already registered");
+			return true;
+		}
+	
+		this.log("Creating indicator \"" + name + "\".");
+		
+		this.icons[name] = new Indicator(nameText, dontCreateMenu);
+	
+		Main.panel.addToStatusArea('status-icon-' + name, this.icons[name]);
+
+		return true;
 	}
 
 	// Remove status icon from bar 
@@ -193,43 +233,48 @@ class Controller {
 
 }
 
+let instance = null;
+
 function get_controller() {
 
-	Controller.instance = new Controller();
-	return Controller.instance;
+	if(!instance) {
+		instance = new Controller();
+	}
+
+	return instance;
 
 }
 
 function init() {
 
-	if(Controller.instance === null) {
-		Controller.instance = new Controller();
-		Controller.instance.init()
-	}
+	get_controller().init();
 
 }
 
 function deinit() {
 
-	if(Controller.instance !== null) {
-		Controller.instance.deinit()
-		Controller.instance = null;
+	if(instance !== null) {
+		instance.deinit()
+		instance = null;
 	}
 
 }
 
 function enable() {
 
-	if(Controller.instance !== null) {
-		Controller.instance.enable()
-	}
+	let controller = get_controller();
+
+	controller.enable();
+
+	controller.add("test","Sample indicator",false);
+	controller.set_icon_name("test","network-offline");
+	controller.set_visible("test",true)
+
 
 }
 
 function disable() {
 
-	if(Controller.instance !== null) {
-		Controller.instance.disable()
-	}
+	get_controller().disable();
 
 }

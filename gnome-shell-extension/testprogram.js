@@ -12,7 +12,7 @@ controller.log = function(msg) {
 	print(msg)
 }
 
-class indicator {
+class Indicator {
 
 	constructor() {
 		this.button = new Gtk.Button();
@@ -45,7 +45,9 @@ controller.add = function(name, nameText, dontCreateMenu) {
 		return true;
 	}
 
-	this.icons[name] = new indicator();
+	this.log("Creating indicator \"" + name + "\".");
+
+	this.icons[name] = new Indicator();
 	this.button_box.pack_start(this.icons[name].button, false, false, 0);
 
 	return true;
