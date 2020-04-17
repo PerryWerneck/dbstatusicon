@@ -112,6 +112,11 @@ class Controller {
 						<arg type="s" direction="in" /> \
 						<arg type="b" direction="out" /> \
 					</method> \
+					<method name="set_title"> \
+						<arg type="s" direction="in" /> \
+						<arg type="s" direction="in" /> \
+						<arg type="b" direction="out" /> \
+					</method> \
 					<method name="abend"> \
 					</method> \
 				</interface> \
@@ -182,6 +187,10 @@ class Controller {
 		return true;
 	}
 
+	set_title(name, title) {
+		this.get_indicator(name).set_title(title);
+		return true;
+	}
 
 
 }

@@ -36,6 +36,10 @@ class indicator {
 		}
 	}
 
+	set_title(title) {
+		
+	}
+
 }
 
 controller.add = function(name, nameText, dontCreateMenu) {

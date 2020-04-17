@@ -46,19 +46,26 @@
 
         DB_STATUS_PROPERTY_NONE,
 
-        DB_STATUS_ICON_PROPERTY_NAME,
+		DB_STATUS_ICON_PROPERTY_NAME,
         DB_STATUS_ICON_PROPERTY_EMBEDDED,
-        DB_STATUS_ICON_PROPERTY_ICON_NAME,
+
+		DB_STATUS_ICON_PROPERTY_STRINGS
+    };
+
+    enum _db_status_icon_string {
+		DB_STATUS_ICON_ICON_NAME,
+		DB_STATUS_ICON_TITLE,
+		DB_STATUS_ICON_FILENAME,
+
+		DB_STATUS_ICON_STRINGS
     };
 
     struct _DbStatusIcon {
 
         GObject       parent;
-        gchar       * name;
         gboolean      embedded;
-
-        gchar		* title;
-        gchar       * icon_name;
+		gchar		* name;
+        gchar		* strings[DB_STATUS_ICON_STRINGS];
 
     };
 
@@ -68,6 +75,7 @@
 
         struct {
             GParamSpec * icon_name;
+            GParamSpec * strings[DB_STATUS_ICON_STRINGS];
         } properties;
 
     };

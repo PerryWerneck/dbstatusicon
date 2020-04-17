@@ -34,19 +34,12 @@
     }
 
     // Release resources
-    if(icon->name) {
-        g_free(icon->name);
-        icon->name = NULL;
-    }
-
-    if(icon->icon_name) {
-        g_free(icon->icon_name);
-        icon->icon_name = NULL;
-    }
-
-    if(icon->title) {
-        g_free(icon->title);
-        icon->name = NULL;
+    size_t ix;
+    for(ix = 0; ix < G_N_ELEMENTS(icon->strings); ix++) {
+		if(icon->strings[ix]) {
+			g_free(icon->strings[ix]);
+			icon->strings[ix] = NULL;
+		}
     }
 
  }
@@ -84,26 +77,55 @@
             G_PARAM_READABLE
     );
 
-   g_object_class_install_property(
+	g_object_class_install_property(
             gobject_class,
             DB_STATUS_ICON_PROPERTY_EMBEDDED,
             spec
-    );
+	);
 
-    klass->properties.icon_name = g_param_spec_string(
-                "icon-name",
-                "icon-name",
-                _("The name of the status icon"),
-                NULL,
-                G_PARAM_READWRITE|G_PARAM_STATIC_NAME
-            );
+	//
+	// Register string properties.
+	//
+	static const struct {
+		const gchar *name;
+		const gchar *nick;
+		const gchar *blurb;
+	} strings[DB_STATUS_ICON_STRINGS] = {
+		{
+			.name = "icon-name",
+			.nick = "icon-name",
+			.blurb = N_("The indicator standard icon-name")
+		},
+		{
+			.name = "title",
+			.nick = "title",
+			.blurb = N_("The indicator title")
+		},
+		{
+			.name = "icon-file",
+			.nick = "icon-file",
+			.blurb = N_("The indicator icon file name")
+		}
+	};
 
-    g_object_class_install_property(
-            gobject_class,
-            DB_STATUS_ICON_PROPERTY_ICON_NAME,
-            klass->properties.icon_name
-    );
+	size_t ix;
+	for(ix = 0; ix < DB_STATUS_ICON_STRINGS; ix++) {
 
+		klass->properties.strings[ix] =
+			g_param_spec_string(
+					strings[ix].name,
+					strings[ix].nick,
+					strings[ix].blurb,
+					NULL,
+					G_PARAM_READWRITE|G_PARAM_STATIC_NAME
+				);
+
+		g_object_class_install_property(
+				gobject_class,
+				DB_STATUS_ICON_PROPERTY_STRINGS+ix,
+				klass->properties.strings[ix]
+		);
+	}
 
  }
 
@@ -111,7 +133,6 @@
 
     // Just in case
     object->embedded = FALSE;
-    object->name = NULL;
 
 
  }
@@ -153,7 +174,7 @@
 				g_variant_new(
 					"(ssb)",
 						icon->name,
-						icon->title ? icon->title : "",
+						icon->strings[DB_STATUS_ICON_TITLE] ? icon->strings[DB_STATUS_ICON_TITLE] : "",
 						TRUE
 				),
 				NULL,
