@@ -273,11 +273,6 @@ function enable() {
 
 	controller.enable();
 
-	controller.add("test","Sample indicator",false);
-	controller.set_icon_name("test","network-offline");
-	controller.set_visible("test",true)
-
-
 }
 
 function disable() {
