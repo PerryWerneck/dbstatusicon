@@ -16,16 +16,12 @@ class indicator {
 
 	constructor() {
 		this.button = new Gtk.Button();
+		this.image = new Gtk.Image();
+		this.button.set_image(this.image);
 	}	
 
-	set_icon_name(icon_name) {
-		let image = new Gtk.Image();
-		image.set_from_icon_name(icon_name,Gtk.IconSize.BUTTON);
-		this.button.set_image(image);
-	}
-
-	set_from_file(file) {
-
+	set_icon(icon) {
+		this.image.set_from_gicon(icon,Gtk.IconSize.BUTTON);
 	}
 
 	set_visible(visible) {

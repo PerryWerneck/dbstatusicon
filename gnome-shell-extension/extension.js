@@ -40,22 +40,17 @@ const PanelMenu = imports.ui.panelMenu;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 */
 
-/*
 // Indicator
+/*
 class Indicator extends PanelMenu.Button {
 
-	constructor(menuAlignment, nameText, dontCreateMenu) {
-		super(menuAlignment, nameText, dontCreateMenu);
+	constructor(name, nameText, dontCreateMenu) {
+		super(0.0, nameText, dontCreateMenu);
 	}	
 
-	set_icon_name(icon_name) {
-
+	set_icon(icon) {
 	}
-
-	set_from_file(file) {
-
-	}
-
+	
 }
 */
 
@@ -64,8 +59,9 @@ class Controller {
 
 	constructor() {
 
-		this.icons = { }	// Indicator list
-		this.service = { 'id': null }
+		this.icons = { };
+		this.service = { 'id': null };
+		this.icon_names = { };
 
 	}
 
@@ -109,7 +105,7 @@ class Controller {
 						<arg type="s" direction="in" /> \
 						<arg type="b" direction="out" /> \
 					</method> \
-					<method name="set_from_file"> \
+					<method name="set_icon_from_file"> \
 						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
 						<arg type="b" direction="out" /> \
@@ -172,13 +168,22 @@ class Controller {
 	}
 
 	set_icon_name(name, icon_name) {
-		this.get_indicator(name).set_icon_name(icon_name);
+
+		if(!this.icon_names.hasOwnProperty(icon_name)) {
+			this.icon_names[icon_name] = Gio.ThemedIcon.new_from_names([icon_name]);
+		}
+
+		this.get_indicator(name).set_icon(this.icon_names[icon_name]);
+
 		return true;
 	}
 
-	set_from_file(name, file) {
-		this.get_indicator(name).set_from_file(file);
+	set_icon_from_file(name, file) {
+
+		let icon = Gio.icon_new_for_string(file);
+		this.get_indicator(name).set_icon(icon);
 		return true;
+
 	}
 
 	set_title(name, title) {
