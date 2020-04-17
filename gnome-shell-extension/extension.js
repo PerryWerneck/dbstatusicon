@@ -95,7 +95,6 @@ class Controller {
 	init() {
 
 		this.log("Initializing status icon controller");
-		// let intf = Gio.file_new_for_path(Me.path + '/interface.xml').load_contents(null)];
 
 		this.service.id = 
 			Gio.DBus.session.own_name(
@@ -190,7 +189,15 @@ class Controller {
 
 	// Remove status icon from bar 
 	remove(name) {
-		return false;
+
+		if(!this.icons.hasOwnProperty(name)) {
+			return false;
+		}
+
+		this.icons[name].destroy();
+		delete this.icons[name];
+		
+		return true;
 	}
 
 	get_indicator(name) {
