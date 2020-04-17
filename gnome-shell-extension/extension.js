@@ -101,6 +101,7 @@ class Controller {
 					</method> \
 					<method name="set_visible"> \
 						<arg type="b" direction="in" /> \
+						<arg type="b" direction="out" /> \
 					</method> \
 					<method name="set_icon_name"> \
 						<arg type="s" direction="in" /> \
@@ -116,8 +117,6 @@ class Controller {
 						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
 						<arg type="b" direction="out" /> \
-					</method> \
-					<method name="abend"> \
 					</method> \
 				</interface> \
 			</node>';
@@ -139,11 +138,6 @@ class Controller {
 		print(msg)
 	}
 
-	// Quick and dirty hack to use gnome shell extension reload
-	abend() {
-		throw new Error('Abend!');
-	}
-
 	enable() {
 		this.log("Enabling status icon controller");
 	}
@@ -154,13 +148,11 @@ class Controller {
 
 	// Add status icon to bar
 	add(name, nameText, dontCreateMenu) {
-
 		return false;
 	}
 
 	// Remove status icon from bar 
 	remove(name) {
-		this.log("Removing status icon " + name)
 		return false;
 	}
 
@@ -175,6 +167,7 @@ class Controller {
 
 	set_visible(name, visible) {
 		this.get_indicator(name).set_visible(visible);
+		return true;
 	}
 
 	set_icon_name(name, icon_name) {
@@ -191,7 +184,6 @@ class Controller {
 		this.get_indicator(name).set_title(title);
 		return true;
 	}
-
 
 }
 

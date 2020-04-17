@@ -37,7 +37,7 @@ class indicator {
 	}
 
 	set_title(title) {
-		
+
 	}
 
 }

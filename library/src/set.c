@@ -46,7 +46,19 @@
 
     case DB_STATUS_ICON_PROPERTY_EMBEDDED:
         g_warning("Can't set embedded property");
-        break;
+		break;
+
+	case DB_STATUS_ICON_PROPERTY_ICON_NAME:
+		db_status_icon_set_from_icon_name(object, g_value_get_string(value));
+		break;
+
+	case DB_STATUS_ICON_PROPERTY_TITLE:
+		db_status_icon_set_title(object, g_value_get_string(value));
+		break;
+
+	case DB_STATUS_ICON_PROPERTY_FILENAME:
+		db_status_icon_set_from_file(object, g_value_get_string(value));
+		break;
 
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -113,6 +125,7 @@
 
 	if(response) {
 		g_variant_get(response, "(b)", &rc);
+		g_variant_unref(response);
 	}
 
 	if(rc) {
@@ -151,4 +164,54 @@
 
  void db_status_icon_set_title(GObject *object, const gchar *title) {
 	set_string_property(object, DB_STATUS_ICON_TITLE, title);
+ }
+
+ void db_status_icon_set_visible(GObject *object, gboolean visible) {
+
+	DbStatusIcon * icon = db_status_icon_try_embed(object);
+	if(!icon) {
+		return;
+	}
+
+	//
+	// Notify service
+	//
+    GError * error = NULL;
+    GVariant * response = NULL;
+
+    GDBusConnection * connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
+
+    if(!error) {
+
+		response =
+			g_dbus_connection_call_sync(
+				connection,
+				DBUS_STATUS_ICON_BUS_NAME,
+				DBUS_STATUS_ICON_CONTROLLER_PATH,
+				DBUS_STATUS_ICON_CONTROLLER_INTERFACE,
+				"set_visible",
+				g_variant_new(
+					"(sb)",
+						icon->name,
+						visible
+				),
+				NULL,
+				G_DBUS_CALL_FLAGS_NONE,
+				-1,
+				NULL,
+				&error
+			);
+
+    }
+
+	if(error) {
+		g_warning("Error calling \"set_visible\": %s",error->message);
+		g_error_free(error);
+		return;
+	}
+
+	if(response) {
+		g_variant_unref(response);
+	}
+
  }
