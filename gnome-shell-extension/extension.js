@@ -105,10 +105,12 @@ class Controller {
 					<method name="set_icon_name"> \
 						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
+						<arg type="b" direction="out" /> \
 					</method> \
 					<method name="set_from_file"> \
 						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
+						<arg type="b" direction="out" /> \
 					</method> \
 					<method name="abend"> \
 					</method> \
@@ -172,10 +174,12 @@ class Controller {
 
 	set_icon_name(name, icon_name) {
 		this.get_indicator(name).set_icon_name(icon_name);
+		return true;
 	}
 
 	set_from_file(name, file) {
 		this.get_indicator(name).set_from_file(file);
+		return true;
 	}
 
 

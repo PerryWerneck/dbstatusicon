@@ -173,14 +173,8 @@
 	}
 
 	if(response) {
-		// Get response.
-
-		// TODO: Check response.
-
-		g_variant_unref(response);
+		g_variant_get(response, "(b)", &icon->embedded);
 	}
-
-	icon->embedded = TRUE;
 
     return icon;
 

@@ -42,7 +42,7 @@ controller.add = function(name, nameText, dontCreateMenu) {
 
 	if(this.icons.hasOwnProperty(name)) {
 		print("Icon " + name + " was already registered");
-		return false;
+		return true;
 	}
 
 	this.icons[name] = new indicator();
