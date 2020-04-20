@@ -1,0 +1,45 @@
+#
+# This file is part of dbstatusicon.
+#
+# dbstatusicon is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# dbstatusicon is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with dbstatusicon.  If not, see <https://www.gnu.org/licenses/>.
+#
+# perry.werneck@gmail.com	(Alexandre Perry de Souza Werneck)
+#
+
+ID="statusicons@werneck.eti.br"
+
+#---[ Tools ]----------------------------------------------------------------------------
+
+MKDIR=@MKDIR_P@
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+
+#---[ Paths ]----------------------------------------------------------------------------
+
+DATADIR=/usr/share
+
+BASEDIR=@BASEDIR@
+
+install:
+
+	@$(MKDIR) $(DESTDIR)$(DATADIR)/gnome-shell/extensions/$(ID)
+	@$(INSTALL_DATA) *.js $(DESTDIR)$(DATADIR)/gnome-shell/extensions/$(ID)
+	@$(INSTALL_DATA) *.xml $(DESTDIR)$(DATADIR)/gnome-shell/extensions/$(ID)
+	@$(INSTALL_DATA) metadata.json $(DESTDIR)$(DATADIR)/gnome-shell/extensions/$(ID)
+
+uninstall:
+
+	@rm -fr $(DESTDIR)$(DATADIR)/gnome-shell/extensions/$(ID)
+

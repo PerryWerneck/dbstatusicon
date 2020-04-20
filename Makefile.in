@@ -67,7 +67,8 @@ all:
 #---[ Install Targets ]------------------------------------------------------------------
 
 install: \
-	install-library
+	install-library \
+	install-gnome-shell-extension
 
 #---[ Debug Targets ]--------------------------------------------------------------------
 

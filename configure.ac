@@ -148,6 +148,7 @@ dnl ---------------------------------------------------------------------------
 
 AC_CONFIG_FILES(Makefile)
 AC_CONFIG_FILES(library/Makefile)
+AC_CONFIG_FILES(gnome-shell-extension/Makefile)
 
 dnl ---------------------------------------------------------------------------
 dnl Output the generated config.status script.
