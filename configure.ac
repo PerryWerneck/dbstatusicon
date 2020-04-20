@@ -100,8 +100,6 @@ AC_PATH_TOOL([MSGFMT], [msgfmt], [no])
 AC_PATH_TOOL([VALGRIND], [valgrind], [no])
 AC_PATH_TOOL([GENMARSHAL], [glib-genmarshal], [glib-genmarshal])
 
-LIBS="$LIBS -lintl"
-
 dnl ---------------------------------------------------------------------------
 dnl Check for GTK
 dnl ---------------------------------------------------------------------------
@@ -142,13 +140,13 @@ dnl ---------------------------------------------------------------------------
 dnl Directory config
 dnl ---------------------------------------------------------------------------
 
-AC_SUBST(BASEDIR,$app_cv_buildir)
+AC_SUBST(BASEDIR,$ac_pwd)
 
 dnl ---------------------------------------------------------------------------
 dnl Configure which files to generate.
 dnl ---------------------------------------------------------------------------
 
-dnl AC_CONFIG_FILES(library/Makefile)
+AC_CONFIG_FILES(library/Makefile)
 
 dnl ---------------------------------------------------------------------------
 dnl Output the generated config.status script.

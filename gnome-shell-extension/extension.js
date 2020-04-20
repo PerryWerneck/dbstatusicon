@@ -86,7 +86,7 @@ class Controller {
 
 	constructor() {
 
-		this.icons = { };
+		this.indicators = { };
 		this.service = { 'id': null };
 		this.icon_names = { };
 
@@ -153,7 +153,11 @@ class Controller {
 
 		this.log("Deinitializing status icon controller");
 
+		for(indicator in this.indicators) {
+			this.indicators[indicator].destroy();
+		}
 
+		this.indicators = { };
 	}
 
 	log(msg) {
@@ -164,25 +168,34 @@ class Controller {
 	enable() {
 		this.log("Enabling status icon controller");
 
+		for(indicator in this.indicators) {
+			this.indicators[indicator].box.show();
+		}
+
 	}
 
 	disable() {
 		this.log("Disabling status icon controller");
+
+		for(indicator in this.indicators) {
+			this.indicators[indicator].box.hide();
+		}
+
 	}
 
 	// Add status icon to bar
 	add(name, nameText, dontCreateMenu) {
 
-		if(this.icons.hasOwnProperty(name)) {
+		if(this.indicators.hasOwnProperty(name)) {
 			this.log("Icon " + name + " was already registered");
 			return true;
 		}
 	
 		this.log("Creating indicator \"" + name + "\".");
 		
-		this.icons[name] = new Indicator(nameText, dontCreateMenu);
+		this.indicators[name] = new Indicator(nameText, dontCreateMenu);
 	
-		Main.panel.addToStatusArea('status-icon-' + name, this.icons[name]);
+		Main.panel.addToStatusArea('status-icon-' + name, this.indicators[name]);
 
 		return true;
 	}
@@ -190,23 +203,23 @@ class Controller {
 	// Remove status icon from bar 
 	remove(name) {
 
-		if(!this.icons.hasOwnProperty(name)) {
+		if(!this.indicators.hasOwnProperty(name)) {
 			return false;
 		}
 
-		this.icons[name].destroy();
-		delete this.icons[name];
+		this.indicators[name].destroy();
+		delete this.indicators[name];
 		
 		return true;
 	}
 
 	get_indicator(name) {
 
-		if(!this.icons.hasOwnProperty(name)) {
+		if(!this.indicators.hasOwnProperty(name)) {
 			throw new Error(`Indicator ${name} is not available`);
 		}
 
-		return this.icons[name]
+		return this.indicators[name]
 	}
 
 	set_visible(name, visible) {

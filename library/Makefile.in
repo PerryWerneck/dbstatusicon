@@ -1,0 +1,299 @@
+#
+# This file is part of dbstatusicon.
+#
+# dbstatusicon is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# dbstatusicon is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with dbstatusicon.  If not, see <https://www.gnu.org/licenses/>.
+#
+# perry.werneck@gmail.com	(Alexandre Perry de Souza Werneck)
+#
+
+#---[ Library configuration ]------------------------------------------------------------
+
+LIBNAME=libdbstatusicon
+
+SOURCES= \
+	$(wildcard src/*.c)
+
+TEST_SOURCES= \
+	$(wildcard src/testprogram/*.c)
+
+#---[ Tools ]----------------------------------------------------------------------------
+
+CC=@CC@
+LD=@CC@
+LN_S=@LN_S@
+MKDIR=@MKDIR_P@
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+XGETTEXT=@XGETTEXT@
+MSGCAT=@MSGCAT@
+WINDRES=@WINDRES@
+VALGRIND=@VALGRIND@
+
+#---[ Paths ]----------------------------------------------------------------------------
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+sbindir=@sbindir@
+libdir=@libdir@
+includedir=@includedir@
+datarootdir=@datarootdir@
+localedir=@localedir@
+docdir=@docdir@
+sysconfdir=@sysconfdir@
+
+BASEDIR=@BASEDIR@
+
+POTDIR=$(BASEDIR)/.pot
+
+OBJDIR=$(BASEDIR)/.obj/$(LIBNAME)
+OBJDBG=$(OBJDIR)/Debug
+OBJRLS=$(OBJDIR)/Release
+
+BINDIR=$(BASEDIR)/.bin
+BINDBG=$(BINDIR)/Debug
+BINRLS=$(BINDIR)/Release
+
+#---[ Rules ]----------------------------------------------------------------------------
+
+DEPENDS= \
+	Makefile \
+	src/include/*.h \
+	src/*.h
+
+CFLAGS= \
+	@CFLAGS@ \
+	-g \
+	-Isrc/include \
+	-DBUILD_DATE=`date +%Y%m%d` \
+	-DLOCALEDIR=$(localedir) \
+	@GTK_CFLAGS@ \
+	@GLIB_CFLAGS@
+
+LIBS= \
+	@LIBS@ \
+	@GTK_LIBS@ \
+	@GLIB_LIBS@ \
+	@LIBICONV@
+
+LDFLAGS= \
+	@LDFLAGS@
+
+#---[ Debug Rules ]----------------------------------------------------------------------
+
+$(OBJDBG)/%.o: \
+	%.c \
+	$(DEPENDS)
+
+	@echo $< ...
+	@$(MKDIR) $(@D)
+
+	@$(CC) \
+		$(CFLAGS) \
+		-Wall -Wextra -fstack-check \
+		-DDEBUG=1 \
+		-o $@ -c $<
+
+#---[ Release Rules ]--------------------------------------------------------------------
+
+$(OBJRLS)/%.o: \
+	%.c \
+	$(DEPENDS)
+
+	@echo $< ...
+	@$(MKDIR) $(dir $@)
+	@$(CC) \
+		$(CFLAGS) \
+		-DNDEBUG=1 \
+		-o $@ -c $<
+
+#---[ Misc Rules ]-----------------------------------------------------------------------
+
+$(POTDIR)/$(LIBNAME)/%.pot: \
+	%.c
+
+	@echo $(notdir $@) ...
+	@$(MKDIR) $(@D)
+	@$(XGETTEXT) \
+		--language=C \
+		--keyword=_ \
+		--keyword=N_ \
+		--keyword=MSG_:2 \
+		--output=$@ \
+		$<
+	@touch $@
+
+#---[ Release Targets ]------------------------------------------------------------------
+
+all: \
+	$(BINRLS)/$(LIBNAME).so.@PACKAGE_MAJOR_VERSION@.@PACKAGE_MINOR_VERSION@
+
+Release: \
+	$(BINRLS)/$(LIBNAME).so.@PACKAGE_MAJOR_VERSION@.@PACKAGE_MINOR_VERSION@
+
+$(BINRLS)/$(LIBNAME).so.@PACKAGE_MAJOR_VERSION@.@PACKAGE_MINOR_VERSION@: \
+	$(foreach SRC, $(basename $(SOURCES)), $(OBJRLS)/$(SRC).o)
+
+	@$(MKDIR) $(@D)
+	@echo $< ...
+	@$(LD) \
+		-shared -Wl,-soname,$(@F) \
+		-o $@ \
+		$(LDFLAGS) \
+		$^ \
+		-L$(BINRLS) \
+		$(LIBS)
+
+#---[ Install Targets ]------------------------------------------------------------------
+
+install: \
+	install-library \
+	install-dev
+
+install-library: \
+	$(BINRLS)/$(LIBNAME).so.@PACKAGE_MAJOR_VERSION@.@PACKAGE_MINOR_VERSION@
+
+	# Install library
+	@$(MKDIR) $(DESTDIR)$(libdir)
+
+	@$(INSTALL_PROGRAM) \
+		$(BINRLS)/$(LIBNAME).so.@PACKAGE_MAJOR_VERSION@.@PACKAGE_MINOR_VERSION@ \
+		$(DESTDIR)$(libdir)/$(LIBNAME).so.@PACKAGE_MAJOR_VERSION@.@PACKAGE_MINOR_VERSION@
+
+	@$(LN_S) \
+		$(LIBNAME).so.@PACKAGE_MAJOR_VERSION@.@PACKAGE_MINOR_VERSION@ \
+		$(DESTDIR)$(libdir)/$(LIBNAME).so
+
+
+install-dev:
+
+	@mkdir -p $(DESTDIR)$(includedir)
+
+	@$(INSTALL_DATA) \
+		src/include/dbstatusicon.h \
+		$(DESTDIR)$(includedir)
+
+#---[ Misc Targets ]---------------------------------------------------------------------
+
+$(POTDIR)/$(LIBNAME).pot: \
+	$(foreach SRC, $(basename $(SOURCES)), $(POTDIR)/$(LIBNAME)/$(SRC).pot)
+
+	@rm -f $@
+	@$(MKDIR) $(@D)
+	@$(MSGCAT) --sort-output $^ > $@
+
+locale: \
+	locale/$(LIBNAME).pot
+
+	@$(MAKE) -C locale all
+
+locale/$(LIBNAME).pot: \
+	$(POTDIR)/$(LIBNAME).pot
+
+	@rm -f $@
+	@$(MKDIR) $(@D)
+	@$(MSGCAT) --sort-output $^ > $@
+
+
+#---[ Debug Targets ]--------------------------------------------------------------------
+
+Debug: \
+	$(BINDBG)/$(LIBNAME)@EXEEXT@
+
+$(BINDBG)/$(LIBNAME)@EXEEXT@: \
+	$(foreach SRC, $(basename $(TEST_SOURCES)), $(OBJDBG)/$(SRC).o) \
+	$(BINDBG)/$(LIBNAME).so
+
+	@$(MKDIR) $(@D)
+	@echo $< ...
+	@$(LD) \
+		-o $@ \
+		$^ \
+		-L$(BINDBG) \
+		-Wl,-rpath,$(BINDBG) \
+		$(LDFLAGS) \
+		$(LIBS)
+ 
+run: \
+	$(BINDBG)/$(LIBNAME)@EXEEXT@
+
+	@G_DEBUG=fatal-warnings \
+		$(BINDBG)/$(LIBNAME)@EXEEXT@
+
+mem-check: \
+	$(BINDBG)/$(LIBNAME)@EXEEXT@
+
+ifeq ($(VALGRIND),no)
+
+	@LD_LIBRARY_PATH=$(BINDBG) \
+		$(BINDBG)/$(LIBNAME)@EXEEXT@
+
+else
+	@touch valgrind.suppression
+
+	@LD_LIBRARY_PATH=$(BINDBG) \
+		$(VALGRIND) --leak-check=full --track-origins=yes --gen-suppressions=all --suppressions=valgrind.suppression \
+			$(BINDBG)/$(LIBNAME)@EXEEXT@
+endif
+
+
+$(BINDBG)/$(LIBNAME).so: \
+	$(foreach SRC, $(basename $(SOURCES)), $(OBJDBG)/$(SRC).o)
+
+	@$(MKDIR) $(@D)
+	@echo $< ...
+	@$(LD) \
+		-shared -Wl,-soname,$(@F) \
+		-o $@ \
+		-L$(BINDBG) \
+		$(LDFLAGS) \
+		$^ \
+		$(LIBS)
+
+
+#---[ Clean Targets ]--------------------------------------------------------------------
+
+clean: \
+	cleanDebug \
+	cleanRelease
+
+	@rm -fr $(BASEDIR)/.tmp/$(LIBNAME)
+	@rm -fr $(POTDIR)/$(LIBNAME)
+	@rm -fr src/include/marshal
+	@rm -fr locale/$(LIBNAME).pot
+
+cleanDebug:
+
+	@rm -fr $(OBJDBG)
+	@rm -fr $(BINDBG)
+	@rm -fr $(OBJDIR)/marshal
+	@rm -f src/terminal/marshal.h
+	@rm -f src/filetransfer/marshal.h
+
+cleanRelease:
+
+	@rm -fr $(OBJRLS)
+	@rm -fr $(BINRLS)
+	@rm -fr $(POTDIR)
+	@rm -fr $(OBJDIR)/marshal
+	@rm -f src/terminal/marshal.h
+	@rm -f src/filetransfer/marshal.h
+	@rm -f lib$(LIBNAME).pot
+
+clean: \
+	cleanDebug \
+	cleanRelease
+
+
