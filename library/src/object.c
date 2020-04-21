@@ -26,11 +26,51 @@
     DbStatusIcon * icon = DB_STATUS_ICON(object);
 
     if(icon->embedded) {
+        icon->embedded = FALSE;
+    }
+
+
+	if(icon->name) {
 
         // Remove icon from tray
+		GError * error = NULL;
+		GVariant * response = NULL;
 
+		GDBusConnection * connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
 
-        icon->embedded = FALSE;
+		if(!error) {
+
+			response =
+				g_dbus_connection_call_sync(
+					connection,
+					DBUS_STATUS_ICON_BUS_NAME,
+					DBUS_STATUS_ICON_CONTROLLER_PATH,
+					DBUS_STATUS_ICON_CONTROLLER_INTERFACE,
+					"remove",
+					g_variant_new(
+						"(s)",
+							icon->name
+					),
+					NULL,
+					G_DBUS_CALL_FLAGS_NONE,
+					-1,
+					NULL,
+					&error
+				);
+
+		}
+
+		if(error) {
+			g_warning("%s",error->message);
+			g_error_free(error);
+		}
+
+		if(response) {
+			g_variant_unref(response);
+		}
+
+		g_free(icon->name);
+		icon->name = NULL;
     }
 
     // Release resources
@@ -211,6 +251,7 @@
 
 	if(response) {
 		g_variant_get(response, "(b)", &icon->embedded);
+		g_variant_unref(response);
 	}
 
     return icon;

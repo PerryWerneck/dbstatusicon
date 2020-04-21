@@ -22,7 +22,7 @@
 
  static GObject * status_icon = NULL;
 
- static void set_string_property(GtkButton *button, GtkEntry *entry) {
+ static void set_string_property(GtkButton G_GNUC_UNUSED(*button), GtkEntry *entry) {
  	const gchar * property	= g_object_get_data(G_OBJECT(entry),"status_icon_property");
 	GValue 		  value		= G_VALUE_INIT;
 
