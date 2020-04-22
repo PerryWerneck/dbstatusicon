@@ -64,6 +64,8 @@ class Indicator extends PanelMenu.Button {
 
 		this.actor.add_child(this.box);
 
+		this.items = { }
+
 	}	
 
 	set_icon(icon) {
@@ -83,14 +85,18 @@ class Indicator extends PanelMenu.Button {
 	set_title(title) {
 	}
 
-	append_action_menu(dest, path, method, action_name, text) {
+	append_action_menu_item(dest, path, method, action, text) {
 
-		let item = {
+		if(this.items.hasOwnProperty(action)) {
+			return;
+		}
+
+		this.items[action] = {
 			'container':  new PopupMenu.PopupBaseMenuItem(),
 			'dest': dest,
 			'path': path,
 			'method': method,
-			'action_name': action_name
+			'action': action
 		};
 
 		let label = new St.Label({
@@ -100,10 +106,11 @@ class Indicator extends PanelMenu.Button {
 			x_align: Clutter.ActorAlign.START
 		});
 
-		item.container.actor.add(label);
-
-		item.container.connect('activate', Lang.bind(item, function() {
+		this.items[action].container.actor.add(label);
+		this.items[action].container.connect('activate', Lang.bind(this.items[action], function() {
 		
+			global.log('Activating action ' + this.action);
+
 		
 		}));
 
@@ -172,7 +179,7 @@ class Controller {
 						<arg type="s" direction="in" /> \
 						<arg type="b" direction="out" /> \
 					</method> \
-					<method name="append_action_menu"> \
+					<method name="append_action_menu_item"> \
 						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
@@ -291,8 +298,8 @@ class Controller {
 		return true;
 	}
 
-	append_action_menu(name,dest,path,method,action_name,label) {
-		this.get_indicator(name).append_action_menu(dest,path,method,action_name,label);
+	append_action_menu_item(name,dest,path,method,action_name,label) {
+		this.get_indicator(name).append_action_menu_item(dest,path,method,action_name,label);
 	}
 
 }
