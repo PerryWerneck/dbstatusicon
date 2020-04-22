@@ -31,6 +31,10 @@ const Lang = imports.lang;
 // https://github.com/GNOME/gnome-shell/blob/master/js/ui/panelMenu.js
 // https://github.com/GNOME/gnome-shell/blob/master/js/ui/panel.js
 const PanelMenu = imports.ui.panelMenu;
+
+// https://github.com/GNOME/gnome-shell/blob/master/js/ui/popupMenu.js
+const PopupMenu = imports.ui.popupMenu;
+
 const Main = imports.ui.main;
 
 const Clutter = imports.gi.Clutter;
@@ -48,9 +52,9 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 // Indicator
 class Indicator extends PanelMenu.Button {
 
-	constructor(nameText, dontCreateMenu) {
+	constructor(nameText) {
 
-		super(0.0, nameText, dontCreateMenu);
+		super(0.0, nameText, false);
 
 		this.icon = new St.Icon();
 		this.icon.set_icon_size(20);
@@ -59,7 +63,7 @@ class Indicator extends PanelMenu.Button {
 		this.box.add_child(this.icon);
 
 		this.actor.add_child(this.box);
-		
+
 	}	
 
 	set_icon(icon) {
@@ -77,6 +81,34 @@ class Indicator extends PanelMenu.Button {
 	}
 
 	set_title(title) {
+	}
+
+	append_action_menu(dest, path, method, action_name, text) {
+
+		let item = {
+			'container':  new PopupMenu.PopupBaseMenuItem(),
+			'dest': dest,
+			'path': path,
+			'method': method,
+			'action_name': action_name
+		};
+
+		let label = new St.Label({
+			text: text,
+			y_expand: false,
+			y_align: Clutter.ActorAlign.START,
+			x_align: Clutter.ActorAlign.START
+		});
+
+		item.container.actor.add(label);
+
+		item.container.connect('activate', Lang.bind(item, function() {
+		
+		
+		}));
+
+		this.menu.addMenuItem(item.container);
+
 	}
 
 }
@@ -114,7 +146,6 @@ class Controller {
 					<method name="add"> \
 						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
-						<arg type="b" direction="in" /> \
 						<arg type="b" direction="out" /> \
 					</method> \
 					<method name="remove"> \
@@ -140,6 +171,14 @@ class Controller {
 						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
 						<arg type="b" direction="out" /> \
+					</method> \
+					<method name="append_action_menu"> \
+						<arg type="s" direction="in" /> \
+						<arg type="s" direction="in" /> \
+						<arg type="s" direction="in" /> \
+						<arg type="s" direction="in" /> \
+						<arg type="s" direction="in" /> \
+						<arg type="s" direction="in" /> \
 					</method> \
 				</interface> \
 			</node>';
@@ -184,7 +223,7 @@ class Controller {
 	}
 
 	// Add status icon to bar
-	add(name, nameText, dontCreateMenu) {
+	add(name, nameText) {
 
 		if(this.indicators.hasOwnProperty(name)) {
 			this.log("Icon " + name + " was already registered");
@@ -193,7 +232,7 @@ class Controller {
 	
 		this.log("Creating indicator \"" + name + "\".");
 		
-		this.indicators[name] = new Indicator(nameText, dontCreateMenu);
+		this.indicators[name] = new Indicator(nameText);
 	
 		Main.panel.addToStatusArea('status-icon-' + name, this.indicators[name]);
 
@@ -223,6 +262,7 @@ class Controller {
 	}
 
 	set_visible(name, visible) {
+		global.log("Changing status to " + (visible ? "Visible" : "Non-visible"))
 		this.get_indicator(name).set_visible(visible);
 		return true;
 	}
@@ -249,6 +289,10 @@ class Controller {
 	set_title(name, title) {
 		this.get_indicator(name).set_title(title);
 		return true;
+	}
+
+	append_action_menu(name,dest,path,method,action_name,label) {
+		this.get_indicator(name).append_action_menu(dest,path,method,action_name,label);
 	}
 
 }

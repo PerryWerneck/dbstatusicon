@@ -228,10 +228,9 @@
 				DBUS_STATUS_ICON_CONTROLLER_INTERFACE,
 				"add",
 				g_variant_new(
-					"(ssb)",
+					"(ss)",
 						icon->name,
-						icon->strings[DB_STATUS_ICON_TITLE] ? icon->strings[DB_STATUS_ICON_TITLE] : "",
-						TRUE
+						icon->strings[DB_STATUS_ICON_TITLE] ? icon->strings[DB_STATUS_ICON_TITLE] : ""
 				),
 				NULL,
 				G_DBUS_CALL_FLAGS_NONE,
