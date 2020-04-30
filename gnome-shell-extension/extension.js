@@ -25,7 +25,7 @@
 /* exported enable */
 /* exported disable */
 
-const { Gio, St } = imports.gi;
+const { Gio, St, GLib } = imports.gi;
 const Lang = imports.lang;
 
 // https://github.com/GNOME/gnome-shell/blob/master/js/ui/panelMenu.js
@@ -96,26 +96,55 @@ class Indicator extends PanelMenu.Button {
 			'dest': dest,
 			'path': path,
 			'method': method,
-			'action': action
+			'action': action,
+			'label': new St.Label({
+							text: text,
+							y_expand: false,
+							y_align: Clutter.ActorAlign.START,
+							x_align: Clutter.ActorAlign.START
+						})
 		};
 
-		let label = new St.Label({
-			text: text,
-			y_expand: false,
-			y_align: Clutter.ActorAlign.START,
-			x_align: Clutter.ActorAlign.START
-		});
-
-		this.items[action].container.actor.add(label);
+		this.items[action].container.actor.add(this.items[action].label);
 		this.items[action].container.connect('activate', Lang.bind(this.items[action], function() {
 		
 			global.log('Activating action ' + this.action);
 
+			// https://lazka.github.io/pgi-docs/Gio-2.0/classes/DBusConnection.html#Gio.DBusConnection.call
+			Gio.DBus.session.call(
+				this.dest,											// bus_name
+				this.path,											// path
+				'org.gtk.Actions',									// Interface
+				'Activate',											// method
+				new GLib.Variant('(sava{sv})', [ this.action ]),	// Parameters
+				null,												// Reply_type
+				Gio.DBusCallFlags.NONE,								// Flags
+				-1,													// timeout_msec
+				null,												// Cancelable
+				Lang.bind(this, function(connection, res) {
+
+					try {
+
+						global.log('Got D-Bus response');
+						connection.call_finish(res);
+
+					} catch(e) {
+
+						global.log(e);
+						global.log(e.stack);
+
+					}
+
+				}));
 		
 		}));
 
-		this.menu.addMenuItem(item.container);
+		this.menu.addMenuItem(this.items[action].container);
 
+	}
+
+	menu_item_set_enabled(item,enabled) {
+		
 	}
 
 }
@@ -186,6 +215,11 @@ class Controller {
 						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
+					</method> \
+					<method name="menu_item_set_enabled"> \
+						<arg type="s" direction="in" /> \
+						<arg type="s" direction="in" /> \
+						<arg type="b" direction="in" /> \
 					</method> \
 				</interface> \
 			</node>';
@@ -302,6 +336,9 @@ class Controller {
 		this.get_indicator(name).append_action_menu_item(dest,path,method,action_name,label);
 	}
 
+	menu_item_set_enabled(name,item,enabled) {
+		this.get_indicator(name).menu_item_set_enabled(item,enabled);
+	}	
 }
 
 let instance = null;
