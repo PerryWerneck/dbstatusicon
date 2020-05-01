@@ -85,7 +85,7 @@ class Indicator extends PanelMenu.Button {
 	set_title(title) {
 	}
 
-	append_action_menu_item(dest, path, method, action, text) {
+	append_action_menu_item(dest, path, action, text) {
 
 		if(this.items.hasOwnProperty(action)) {
 			return;
@@ -95,7 +95,6 @@ class Indicator extends PanelMenu.Button {
 			'container':  new PopupMenu.PopupBaseMenuItem(),
 			'dest': dest,
 			'path': path,
-			'method': method,
 			'action': action,
 			'label': new St.Label({
 							text: text,
@@ -116,7 +115,7 @@ class Indicator extends PanelMenu.Button {
 				this.path,											// path
 				'org.gtk.Actions',									// Interface
 				'Activate',											// method
-				new GLib.Variant('(sava{sv})', [ this.action ]),	// Parameters
+				new GLib.Variant('(sava{sv})', [this.action, [], {}]),	// Parameters
 				null,												// Reply_type
 				Gio.DBusCallFlags.NONE,								// Flags
 				-1,													// timeout_msec
@@ -157,6 +156,8 @@ class Controller {
 		this.indicators = { };
 		this.service = { 'id': null };
 		this.icon_names = { };
+		this.application_id = null;
+		this.object_path = null;
 
 	}
 
@@ -208,10 +209,13 @@ class Controller {
 						<arg type="s" direction="in" /> \
 						<arg type="b" direction="out" /> \
 					</method> \
+					<method name="set_application_id"> \
+						<arg type="s" direction="in" /> \
+					</method> \
+					<method name="set_object_path"> \
+						<arg type="s" direction="in" /> \
+					</method> \
 					<method name="append_action_menu_item"> \
-						<arg type="s" direction="in" /> \
-						<arg type="s" direction="in" /> \
-						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
@@ -332,8 +336,22 @@ class Controller {
 		return true;
 	}
 
-	append_action_menu_item(name,dest,path,method,action_name,label) {
-		this.get_indicator(name).append_action_menu_item(dest,path,method,action_name,label);
+	set_application_id(application_id) {
+		this.application_id = application_id;
+	}
+
+	set_object_path(object_path) {
+		this.object_path = object_path;
+	}
+
+	append_action_menu_item(name,action_name,label) {
+
+		this.get_indicator(name).append_action_menu_item(
+			this.application_id,
+			this.object_path,
+			action_name,
+			label
+		);
 	}
 
 	menu_item_set_enabled(name,item,enabled) {
