@@ -63,10 +63,82 @@ class Indicator extends PanelMenu.Button {
 		this.box.add_child(this.icon);
 
 		this.actor.add_child(this.box);
+		this.subscription_id = null;
+
+		this.application_id = null;
+		this.object_path = null;
 
 		this.items = { }
 
 	}	
+
+	destroy() {
+
+		if(this.subscription_id) {
+			Gio.DBus.system.signal_unsubscribe(this.subscription_id);			
+			this.subscription_id = null;
+		}
+		super.destroy();
+
+	}
+
+	__check_subscription() {
+
+		if(this.subscription_id) {
+			Gio.DBus.system.signal_unsubscribe(this.subscription_id);			
+			this.subscription_id = null;
+		}
+
+		if(this.application_id && this.object_path) {
+
+			this.subscription_id = Gio.DBus.session.signal_subscribe(
+				null,									// sender name to match on (unique or well-known name) or null to listen from all senders
+				null,									// D-Bus interface name to match on or null to match on all interfaces
+				'Changed',								// D-Bus signal name to match on or null to match on all signals
+				this.object_path,						// object path to match on or null to match on all object paths
+				null,									// contents of first string argument to match on or null to match on all kinds of arguments
+				Gio.DBusSignalFlags.NONE,				// flags describing how to subscribe to the signal (currently unused)
+				Lang.bind(this, function(conn, sender, object_path, interface_name, signal_name, args) {
+			
+					try {
+
+						if(interface_name == 'org.gtk.Actions') {
+
+							for(let item in this.items) {
+
+								let value = args.get_child_value(1).lookup_value(item,null);
+
+								if(value != null) {
+									this.items[item].container.setSensitive(value.get_boolean());
+								}
+
+							}
+	
+						}
+
+					} catch(e) {
+
+						global.log(e);
+						global.log(e.stack);
+
+					}
+			
+				})
+			);
+
+		}
+
+	}
+
+	set_application_id(application_id) {
+		this.application_id = application_id;
+		this.__check_subscription();
+	}
+
+	set_object_path(object_path) {
+		this.object_path = object_path;
+		this.__check_subscription();
+	}
 
 	set_icon(icon) {
 		this.icon.set_gicon(icon);
@@ -85,7 +157,7 @@ class Indicator extends PanelMenu.Button {
 	set_title(title) {
 	}
 
-	append_action_menu_item(dest, path, action, text) {
+	append_action_menu_item(action, text) {
 
 		if(this.items.hasOwnProperty(action)) {
 			return;
@@ -93,8 +165,8 @@ class Indicator extends PanelMenu.Button {
 
 		this.items[action] = {
 			'container':  new PopupMenu.PopupBaseMenuItem(),
-			'dest': dest,
-			'path': path,
+			'dest': this.application_id, 
+			'path': this.object_path,
 			'action': action,
 			'label': new St.Label({
 							text: text,
@@ -156,8 +228,6 @@ class Controller {
 		this.indicators = { };
 		this.service = { 'id': null };
 		this.icon_names = { };
-		this.application_id = null;
-		this.object_path = null;
 
 	}
 
@@ -211,8 +281,10 @@ class Controller {
 					</method> \
 					<method name="set_application_id"> \
 						<arg type="s" direction="in" /> \
+						<arg type="s" direction="in" /> \
 					</method> \
 					<method name="set_object_path"> \
+						<arg type="s" direction="in" /> \
 						<arg type="s" direction="in" /> \
 					</method> \
 					<method name="append_action_menu_item"> \
@@ -336,19 +408,17 @@ class Controller {
 		return true;
 	}
 
-	set_application_id(application_id) {
-		this.application_id = application_id;
+	set_application_id(name, application_id) {
+		this.get_indicator(name).set_application_id(application_id);
 	}
 
-	set_object_path(object_path) {
-		this.object_path = object_path;
+	set_object_path(name, object_path) {
+		this.get_indicator(name).set_object_path(object_path);
 	}
 
 	append_action_menu_item(name,action_name,label) {
 
 		this.get_indicator(name).append_action_menu_item(
-			this.application_id,
-			this.object_path,
 			action_name,
 			label
 		);
