@@ -1,5 +1,5 @@
 {
-	"shell-version": ["3.20.4"], 
+	"shell-version": ["3.20.4","3.34"], 
 	"description": "D-Bus based replacement for GtkStatusIcon", 
 	"name": "statusicons", 
 	"uuid": "statusicons@werneck.eti.br"
