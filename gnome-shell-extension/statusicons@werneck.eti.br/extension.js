@@ -21,9 +21,6 @@
 /* jshint -W100 */
 /* history */
 /* exported init */
-/* exported deinit */
-/* exported enable */
-/* exported disable */
 
 const { Gio, St, GObject, GLib } = imports.gi;
 const Lang = imports.lang;
@@ -59,7 +56,7 @@ class Indicator extends PanelMenu.Button {
 		this.box = new St.BoxLayout();
 		this.box.add_child(this.icon);
 
-		// TODO: Remove actor.
+		// TODO: This is deprecated.
 		this.actor.add_child(this.box);
 
 		// APP Binding
@@ -76,7 +73,7 @@ class Indicator extends PanelMenu.Button {
 		super.destroy();
 	}
 
-	set_icon(name) {
+	set_icon_name(name) {
 		this.icon.set_gicon(Gio.ThemedIcon.new_from_names([name]));
 		return true;
 	}
@@ -139,14 +136,16 @@ class DBStatusIconExtension {
 	add(name, text) {
 
 		if(name in this.childen) {
-			log("Icon " + name + " was already registered");
+			log(`Indicator ${name} is registered`);
 			return false;
 		}
 	
-		log("Creating indicator \"" + name + "\".");
+		log(`Adding indicator ${name}`);
 		
 		this.childen[name] = {
 			
+			'icon_name': name,
+			'visible': true,
 			'widget': new Indicator(this, name, text)
 		}
 	
@@ -159,7 +158,7 @@ class DBStatusIconExtension {
 
 		if(name in this.childen) {
 	
-			log("Removing indicator \"" + name + "\".");
+			log(`Removing indicator ${name}`);
 			
 			if(this.childen[name].widget) {
 				this.childen[name].widget.destroy();
@@ -171,7 +170,7 @@ class DBStatusIconExtension {
 
 		}
 
-		log('Indicator ' + name + ' is not registered');
+		log(`Indicator ${name} is not registered`);
 
 		return false;
 	}
@@ -180,8 +179,68 @@ class DBStatusIconExtension {
 		return "1.0";
 	}
 
-}
+	get_child(name) {
 
+		if(name in this.childen) {
+			return this.childen[name]
+		}
+	
+		throw new Error(`Indicator ${name} is not available`);
+	
+	}
+	
+	set_visible(name, visible) {
+	
+		let child = get_child(name);
+
+		if(child.visible == visible)
+			return false;
+
+		child.visible = visible;
+
+		return true;
+	}
+
+	set_icon_name(name, icon_name) {
+
+		let child = get_child(name);
+
+		if(child.icon_name == icon_name)
+			return false;
+		
+		child.icon_name = icon_name;
+		
+		if(child.widget) {
+			child.widget.set_icon_name(icon_name);
+		}
+
+		return true;
+
+	}
+
+	set_icon_from_file(name, file) {
+		return false;
+	}
+
+	set_title(name, title) {
+	}
+
+	set_application(name, application_id, object_path) {
+	}
+
+	set_application_id(name, application_id) {
+	}
+
+	set_object_path(name, object_path) {
+	}
+
+	append_action_menu_item(name,action_name,label) {
+	}	
+
+	menu_item_set_enabled(name,item,enabled) {
+	}
+
+}
 
 function init() {
 	return new DBStatusIconExtension();

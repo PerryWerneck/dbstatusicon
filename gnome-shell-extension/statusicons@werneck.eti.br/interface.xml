@@ -32,6 +32,11 @@
 			<arg type="s" direction="in" />
 			<arg type="b" direction="out" />
 		</method>
+		<method name="set_application">
+			<arg type="s" direction="in" />
+			<arg type="s" direction="in" />
+			<arg type="s" direction="in" />
+		</method>
 		<method name="set_application_id">
 			<arg type="s" direction="in" />
 			<arg type="s" direction="in" />
