@@ -191,7 +191,7 @@ class DBStatusIconExtension {
 	
 	set_visible(name, visible) {
 	
-		let child = get_child(name);
+		let child = this.get_child(name);
 
 		if(child.visible == visible)
 			return false;
@@ -203,7 +203,7 @@ class DBStatusIconExtension {
 
 	set_icon_name(name, icon_name) {
 
-		let child = get_child(name);
+		let child = this.get_child(name);
 
 		if(child.icon_name == icon_name)
 			return false;
