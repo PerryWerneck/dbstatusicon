@@ -22,7 +22,7 @@
 /* history */
 /* exported init */
 
-const { Gio, St, GObject, GLib } = imports.gi;
+const { Gio, St, GObject, GLib, Clutter } = imports.gi;
 const Lang = imports.lang;
 
 // https://stackoverflow.com/questions/20394840/how-to-set-a-png-file-in-a-gnome-shell-extension-for-st-icon
@@ -60,21 +60,133 @@ class Indicator extends PanelMenu.Button {
 		this.actor.add_child(this.box);
 
 		// APP Binding
-		// this.subscription_id = null;
-		// this.application_id = null;
-		// this.object_path = null;
-		// this.items = { }
-	
+		this.application = {
+			'id': null,
+			'path': null,
+			'signal': null,
+			'actions': { }
+		};
+
 		Main.panel.addToStatusArea('status-icon-' + name, this);
+
 	}
 
 	destroy() {
+
+		if(this.application.signal) {
+			Gio.DBus.system.signal_unsubscribe(this.application.signal);			
+			this.application.signal = null;
+		}		
 
 		super.destroy();
 	}
 
 	set_icon_name(name) {
 		this.icon.set_gicon(Gio.ThemedIcon.new_from_names([name]));
+		return true;
+	}
+
+	_subscribe_to_application() {
+
+		if(this.application.signal) {
+			Gio.DBus.system.signal_unsubscribe(this.application.signal);			
+			this.application.signal = null;
+		}		
+
+		if(this.application.id && this.application.path) {
+
+			this.application.signal = 
+			Gio.DBus.session.signal_subscribe(
+				null,									// sender name to match on (unique or well-known name) or null to listen from all senders
+				null,									// D-Bus interface name to match on or null to match on all interfaces
+				'Changed',								// D-Bus signal name to match on or null to match on all signals
+				this.application.path,					// object path to match on or null to match on all object paths
+				null,									// contents of first string argument to match on or null to match on all kinds of arguments
+				Gio.DBusSignalFlags.NONE,				// flags describing how to subscribe to the signal (currently unused)
+				Lang.bind(this, function(conn, sender, object_path, interface_name, signal_name, args) {
+			
+					try {
+
+						if(interface_name == 'org.gtk.Actions') {
+
+							for(let item in this.application.actions) {
+
+								let action = args.get_child_value(1).lookup_value(item,null);
+								
+								if(action in this.application.actions) {
+									this.application.actions[action].widget.setSensitive(value.get_boolean());
+								}
+
+							}
+	
+						}
+
+					} catch(e) {
+
+						log(e);
+						log(e.stack);
+
+					}
+			
+				})
+			);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	set_application(application_id, object_path) {
+
+		if(this.application.id == application_id && this.application.path == object_path)
+			return false;
+
+		this.application.id = application_id;
+		this.application.path = object_path;
+
+		return this._subscribe_to_application();
+	}	
+
+	set_application_id(application_id) {
+		if(this.application.id == application_id)
+			return false;
+		
+		this.application.id = application_id;
+		return this._subscribe_to_application();
+	}
+
+	set_object_path(object_path) {
+		it(this.application.path == object_path)
+			return false;
+
+		this.application.path = object_path;
+		return this._subscribe_to_application();
+	}
+
+	append_action(name, text) {
+
+		if(name in this.application.actions) {
+			return false;
+		}
+
+		let item =  {
+			'application': this.application,
+			'widget': new PopupMenu.PopupBaseMenuItem(),
+		};
+
+		item.widget.actor.add(		
+			new St.Label({
+				text: text,
+				y_expand: false,
+				y_align: Clutter.ActorAlign.START,
+				x_align: Clutter.ActorAlign.START
+			})
+		);
+
+		this.application.actions[name] = item;
+		this.menu.addMenuItem(item.widget);
+
 		return true;
 	}
 
@@ -226,15 +338,19 @@ class DBStatusIconExtension {
 	}
 
 	set_application(name, application_id, object_path) {
-	}
+		this.get_child(name).widget.set_application(application_id, object_path);
+	}	
 
 	set_application_id(name, application_id) {
+		this.get_child(name).widget.set_application_id(this.set_application_id);
 	}
 
 	set_object_path(name, object_path) {
+		this.get_child(name).widget.set_object_path(object_path);
 	}
 
 	append_action_menu_item(name,action_name,label) {
+		this.get_child(name).widget.append_action(action_name,label);
 	}	
 
 	menu_item_set_enabled(name,item,enabled) {
