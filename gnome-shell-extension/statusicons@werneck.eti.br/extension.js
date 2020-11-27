@@ -28,6 +28,9 @@
 const { Gio, St, GObject, GLib } = imports.gi;
 const Lang = imports.lang;
 
+// https://stackoverflow.com/questions/20394840/how-to-set-a-png-file-in-a-gnome-shell-extension-for-st-icon
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
@@ -56,6 +59,7 @@ class Indicator extends PanelMenu.Button {
 		this.box = new St.BoxLayout();
 		this.box.add_child(this.icon);
 
+		// TODO: Remove actor.
 		this.actor.add_child(this.box);
 
 		// APP Binding
@@ -89,14 +93,39 @@ class DBStatusIconExtension {
 		log('Loading dbstatus icons');
 		this.childen = { };
 
+		this.service = {
+			'id':
+				Gio.DBus.session.own_name(
+					'br.eti.werneck.statusicon',
+					Gio.BusNameOwnerFlags.NONE,
+					function() {
+						log('Got br.eti.werneck.statusicon');
+					},
+					function() {
+						log('Error getting br.eti.werneck.statusicon');
+					}
+				)
+
+		};
+
+		let file = Gio.file_new_for_path(Me.path + '/interface.xml');
+		let [flag, data] = file.load_contents(null);
+		if(flag) {
+
+			this.service.wrapper = 
+				Gio.DBusExportedObject.wrapJSObject(
+					String.fromCharCode.apply(null, data), this
+				);
+
+			this.service.wrapper.export(Gio.DBus.session,'/br/eti/werneck/statusicon/controller');
+
+		}
 	}
 
 	enable() {
 
 		log('Enabling dbstatus icons');
 
-		this.add('br.com.bb.pw3270.unstable','Icon test');
-		
 
 	}
 
@@ -104,7 +133,6 @@ class DBStatusIconExtension {
 
 		log('Disabling dbstatus icons');
 
-		this.remove('br.com.bb.pw3270.unstable');
 		
 	}
 
@@ -146,6 +174,10 @@ class DBStatusIconExtension {
 		log('Indicator ' + name + ' is not registered');
 
 		return false;
+	}
+
+	get_version() {
+		return "1.0";
 	}
 
 }
