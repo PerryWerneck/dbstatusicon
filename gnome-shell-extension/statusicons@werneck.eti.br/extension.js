@@ -170,12 +170,13 @@ class Indicator extends PanelMenu.Button {
 			return false;
 		}
 
-		let item =  {
+		this.application.actions[name] =  {
+			'name': name, 
 			'application': this.application,
 			'widget': new PopupMenu.PopupBaseMenuItem(),
 		};
 
-		item.widget.actor.add(		
+		this.application.actions[name].widget.actor.add(		
 			new St.Label({
 				text: text,
 				y_expand: false,
@@ -183,11 +184,50 @@ class Indicator extends PanelMenu.Button {
 				x_align: Clutter.ActorAlign.START
 			})
 		);
+		
+		this.menu.addMenuItem(this.application.actions[name].widget);
 
-		this.application.actions[name] = item;
-		this.menu.addMenuItem(item.widget);
+		this.application.actions[name].widget.connect('activate', Lang.bind(this.application.actions[name], function() {
+		
+			log(`Activating action '${this.name}'`);
+
+			Gio.DBus.session.call(
+				this.application.id,									// bus_name
+				this.application.path,									// path
+				'org.gtk.Actions',										// Interface
+				'Activate',												// method
+				new GLib.Variant('(sava{sv})', [this.name, [], {}]),	// Parameters
+				null,													// Reply_type
+				Gio.DBusCallFlags.NONE,									// Flags
+				-1,														// timeout_msec
+				null,													// Cancelable
+				Lang.bind(this, function(connection, res) {
+
+					try {
+
+						log('Got D-Bus response');
+						connection.call_finish(res);
+
+					} catch(e) {
+
+						log(e);
+						log(e.stack);
+
+					}
+
+				}));			
+
+		}));
 
 		return true;
+	}
+
+	enable() {
+		this.box.show();
+	}
+
+	disable() {
+		this.box.hide();
 	}
 
 });
@@ -200,7 +240,7 @@ class DBStatusIconExtension {
 		// ExtensionUtils.initTranslations();
 
 		log('Loading dbstatus icons');
-		this.childen = { };
+		this.children = { };
 
 		this.service = {
 			'id':
@@ -229,12 +269,22 @@ class DBStatusIconExtension {
 			this.service.wrapper.export(Gio.DBus.session,'/br/eti/werneck/statusicon/controller');
 
 		}
+
+		// TODO:
+		//
+		// Subscribe path=/org/freedesktop/DBus; interface=org.freedesktop.DBus; member=NameLost
+		// and use this signal to remove icon when application exits.
+		//
+
 	}
 
 	enable() {
 
 		log('Enabling dbstatus icons');
 
+		for(let name in this.children) {
+			this.children[name].widget.enable();
+		}
 
 	}
 
@@ -242,41 +292,44 @@ class DBStatusIconExtension {
 
 		log('Disabling dbstatus icons');
 
-		
+		for(let name in this.children) {
+			this.children[name].widget.disable();
+		}
+
 	}
 
 	add(name, text) {
 
-		if(name in this.childen) {
+		if(name in this.children) {
 			log(`Indicator ${name} is registered`);
 			return false;
 		}
 	
 		log(`Adding indicator ${name}`);
 		
-		this.childen[name] = {
+		this.children[name] = {
 			
 			'icon_name': name,
 			'visible': true,
 			'widget': new Indicator(this, name, text)
 		}
 	
-		Main.panel.addToStatusArea(name, this.childen[name].widget);
+		Main.panel.addToStatusArea(name, this.children[name].widget);
 
 		return true;
 	}
 
 	remove(name) {
 
-		if(name in this.childen) {
+		if(name in this.children) {
 	
 			log(`Removing indicator ${name}`);
 			
-			if(this.childen[name].widget) {
-				this.childen[name].widget.destroy();
+			if(this.children[name].widget) {
+				this.children[name].widget.destroy();
 			}
 
-			delete this.childen[name];
+			delete this.children[name];
 
 			return true;
 
@@ -293,8 +346,8 @@ class DBStatusIconExtension {
 
 	get_child(name) {
 
-		if(name in this.childen) {
-			return this.childen[name]
+		if(name in this.children) {
+			return this.children[name]
 		}
 	
 		throw new Error(`Indicator ${name} is not available`);
