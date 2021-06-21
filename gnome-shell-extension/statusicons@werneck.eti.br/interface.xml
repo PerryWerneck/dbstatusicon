@@ -1,0 +1,60 @@
+<node>
+	<interface name="br.eti.werneck.statusicon">
+		<method name="get_version">
+			<arg type="s" direction="out" />
+		</method>
+		<method name="add">
+			<arg type="s" direction="in" />
+			<arg type="s" direction="in" />
+			<arg type="b" direction="out" />
+		</method>
+		<method name="remove">
+			<arg type="s" direction="in" />
+			<arg type="b" direction="out" />
+		</method>
+		<method name="set_visible">
+			<arg type="s" direction="in" />
+			<arg type="b" direction="in" />
+			<arg type="b" direction="out" />
+		</method>
+		<method name="set_icon_name">
+			<arg type="s" direction="in" />
+			<arg type="s" direction="in" />
+			<arg type="b" direction="out" />
+		</method>
+		<method name="set_icon_from_file">
+			<arg type="s" direction="in" />
+			<arg type="s" direction="in" />
+			<arg type="b" direction="out" />
+		</method>
+		<method name="set_title">
+			<arg type="s" direction="in" />
+			<arg type="s" direction="in" />
+			<arg type="b" direction="out" />
+		</method>
+		<method name="set_application">
+			<arg type="s" direction="in" />
+			<arg type="s" direction="in" />
+			<arg type="s" direction="in" />
+		</method>
+		<method name="set_application_id">
+			<arg type="s" direction="in" />
+			<arg type="s" direction="in" />
+		</method>
+		<method name="set_object_path">
+			<arg type="s" direction="in" />
+			<arg type="s" direction="in" />
+		</method>
+		<method name="append_action_menu_item">
+			<arg type="s" direction="in" />
+			<arg type="s" direction="in" />
+			<arg type="s" direction="in" />
+		</method>
+		<method name="menu_item_set_enabled">
+			<arg type="s" direction="in" />
+			<arg type="s" direction="in" />
+			<arg type="b" direction="in" />
+		</method>
+	</interface>
+</node>
+
